@@ -36,6 +36,7 @@ if (!$produto) {
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
       <a class="navbar-brand" href="index.php">🛒 Portal de Produtos</a>
+      <a class="text-primary" href="./auth/login.php">Area do cliente</a>
     </div>
   </nav>
 
