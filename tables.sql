@@ -6,7 +6,8 @@ USE ecommerce;
 CREATE TABLE Category (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     Name VARCHAR(100) NOT NULL,
-    Description TEXT
+    Description TEXT,
+    Created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Tabela Product
@@ -18,6 +19,7 @@ CREATE TABLE Product (
     Quantity INT NOT NULL,
     Image VARCHAR(255),
     Category_id INT,
+    Created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (Category_id) REFERENCES Category(ID)
 );
 
@@ -28,6 +30,7 @@ CREATE TABLE Costumer (
     Email VARCHAR(100) UNIQUE NOT NULL,
     Password VARCHAR(255) NOT NULL,
     ROLE VARCHAR(50) DEFAULT 'user',
+    Created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     Updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
@@ -37,6 +40,7 @@ CREATE TABLE Cart (
     Itens INT DEFAULT 0,
     Total FLOAT DEFAULT 0,
     Costumer_id INT,
+    Created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (Costumer_id) REFERENCES Costumer(ID)
 );
 
@@ -46,6 +50,7 @@ CREATE TABLE CartItem (
     Product_ID INT NOT NULL,
     Cart_ID INT NOT NULL,
     QuantityItem INT NOT NULL,
+    Created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     Updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (Product_ID) REFERENCES Product(ID),
     FOREIGN KEY (Cart_ID) REFERENCES Cart(ID)
@@ -57,6 +62,7 @@ CREATE TABLE `Order` (
     Total FLOAT NOT NULL,
     Status ENUM('pending', 'paid', 'shipped', 'delivered', 'canceled') NOT NULL,
     Costumer_id INT,
+    Created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (Costumer_id) REFERENCES Costumer(ID)
 );
 
@@ -67,6 +73,7 @@ CREATE TABLE OrderItem (
     Order_ID INT NOT NULL,
     QuantityItem INT NOT NULL,
     Price FLOAT NOT NULL,
+    Created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     Updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (Product_ID) REFERENCES Product(ID),
     FOREIGN KEY (Order_ID) REFERENCES `Order`(ID)
