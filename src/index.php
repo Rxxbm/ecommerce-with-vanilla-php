@@ -2,7 +2,6 @@
 session_start();
 require './config/connection.php';
 
-
 // Lógica para adicionar ao carrinho
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_to_cart'])) {
   $product_id = $_POST['product_id'];
@@ -245,7 +244,7 @@ $products = $stmt->fetchAll();
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               <li><a class="dropdown-item" href="./dashboard/client.php"><i class="bi bi-speedometer2"></i> Minha Conta</a></li>
-              <li><a class="dropdown-item" href="./orders.php"><i class="bi bi-receipt"></i> Meus Pedidos</a></li>
+              <li><a class="dropdown-item" href="./orders/index.php"><i class="bi bi-receipt"></i> Meus Pedidos</a></li>
               <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item text-danger" href="./auth/logout.php"><i class="bi bi-box-arrow-right"></i> Sair</a></li>
             </ul>
