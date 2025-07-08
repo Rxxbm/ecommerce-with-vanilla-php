@@ -9,3 +9,8 @@ RUN apt-get update && apt-get install -y \
 
 # (Opcional) Habilitar mod_rewrite do Apache
 RUN a2enmod rewrite
+
+# Criar a pasta uploads com permissões apropriadas
+RUN mkdir -p /var/www/html/uploads \
+    && chown -R www-data:www-data /var/www/html/uploads \
+    && chmod -R 755 /var/www/html/uploads
