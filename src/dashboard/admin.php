@@ -148,13 +148,20 @@ foreach ($products as $prod) {
     
     @media (max-width: 992px) {
       .sidebar {
-        width: 0;
-        overflow: hidden;
-        transition: all 0.3s;
-      }
-      .sidebar.show {
+        background: linear-gradient(135deg, var(--dark-color) 0%, #212529 100%);
+        color: white;
+        min-height: 100vh;
         width: 280px;
+        position: fixed;
+        left: -280px; /* Esconde inicialmente */
+        transition: left 0.3s;
+        z-index: 1000;
       }
+
+      .sidebar.show {
+        left: 0; /* Mostra quando tiver a classe .show */
+      }
+
       .main-content {
         margin-left: 0;
       }
@@ -272,56 +279,51 @@ foreach ($products as $prod) {
 </head>
 <body>
       <!-- Sidebar -->
-  <div class="sidebar d-none d-lg-block">
-    <div class="sidebar-header text-center">
-      <h4>🛒 Portal de Produtos</h4>
-    </div>
-    
-    <ul class="nav flex-column mt-4">
-      <li class="nav-item">
-        <a class="nav-link active" href="#">
-          <i class="bi bi-speedometer2"></i> Dashboard
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="./admin/orders.php">
-          <i class="bi bi-receipt"></i> Cadastrar Produtos
-        </a>
-      </li>
-      <li class="nav-item">
-      <a class="nav-link" href="create_employee.php">
-        <i class="bi bi-person-plus"></i> Cadastrar Funcionários
-      </a>
-    </li>
-      <li class="nav-item">
-        <a class="nav-link" href="../settings.php">
-          <i class="bi bi-gear"></i> Configurações
-        </a>
-      </li>
-      <li class="nav-item mt-4">
-        <div class="cart-summary">
-          <h6><i class="bi bi-cart3"></i> Seu Carrinho</h6>
-          <p class="mb-1">Itens: <?= $cart_items ?></p>
-          <p class="mb-2">Total: R$ <?= number_format($cart_total, 2, ',', '.') ?></p>
-          <a href="../cart.php" class="btn btn-sm btn-primary w-100">
-            <i class="bi bi-arrow-right"></i> Ver Carrinho
-          </a>
+      <div class="sidebar" id="sidebar">
+        <div class="sidebar-header text-center">
+          <h4>🛒 Portal de Produtos</h4>
         </div>
-      </li>
-      <li class="nav-item mt-3">
-        <a class="nav-link text-danger" href="../auth/logout.php">
-          <i class="bi bi-box-arrow-right"></i> Sair
-        </a>
-      </li>
-    </ul>
-  </div>
+        
+        <ul class="nav flex-column mt-4">
+          <li class="nav-item">
+            <a class="nav-link active" href="#">
+              <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="./admin/product.php">
+              <i class="bi bi-box-seam"></i> Cadastrar Produtos
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="./admin/category.php">
+              <i class="bi bi-tags"></i> Criar Categoria
+            </a>
+          </li>
+          <li class="nav-item">
+          <a class="nav-link" href="./admin/costumer.php">
+            <i class="bi bi-person-plus"></i> Cadastrar Funcionários
+          </a>
+        </li>
+          <li class="nav-item">
+            <a class="nav-link" href="./admin/settings.php">
+              <i class="bi bi-gear"></i> Configurações
+            </a>
+          </li>
+          <li class="nav-item mt-3">
+            <a class="nav-link text-danger" href="../auth/logout.php">
+              <i class="bi bi-box-arrow-right"></i> Sair
+            </a>
+          </li>
+        </ul>
+      </div>
 
-  <!-- Mobile Menu Button -->
-  <button class="btn btn-primary mobile-menu-btn rounded-circle" style="width: 50px; height: 50px;" id="mobileMenuBtn">
-    <i class="bi bi-list" style="font-size: 1.5rem;"></i>
-  </button>
+    <!-- Mobile Menu Button -->
+    <button class="btn btn-primary mobile-menu-btn rounded-circle" style="width: 50px; height: 50px;" id="mobileMenuBtn">
+      <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+    </button>
 
-  <!-- Main Content-->
+    <!-- Main Content-->
     <div class="main-content">
         <div class="welcome-banner">
       <div class="row align-items-center">
@@ -336,83 +338,88 @@ foreach ($products as $prod) {
     </div>
 
     <!-- Estoque em Cards com Filtro -->
-<div class="card mt-5">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <h5 class="mb-0"><i class="bi bi-box-seam"></i> Estoque</h5>
-    <form method="GET" class="d-flex">
-      <select name="category_id" class="form-select form-select-sm me-2" onchange="this.form.submit()">
-        <option value="">Todas as Categorias</option>
-        <?php foreach ($categories as $cat): ?>
-          <option value="<?= $cat['ID'] ?>" <?= (isset($_GET['category_id']) && $_GET['category_id'] == $cat['ID']) ? 'selected' : '' ?>>
-            <?= htmlspecialchars($cat['Name']) ?>
-          </option>
-        <?php endforeach; ?>
-      </select>
-    </form>
-  </div>
+    <div class="card mt-5">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-box-seam"></i> Estoque</h5>
+        <form method="GET" class="d-flex">
+          <select name="category_id" class="form-select form-select-sm me-2" onchange="this.form.submit()">
+            <option value="">Todas as Categorias</option>
+            <?php foreach ($categories as $cat): ?>
+              <option value="<?= $cat['ID'] ?>" <?= (isset($_GET['category_id']) && $_GET['category_id'] == $cat['ID']) ? 'selected' : '' ?>>
+                <?= htmlspecialchars($cat['Name']) ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </form>
+      </div>
 
-  <div class="card-body">
-    <div class="row">
-      <?php
-        $selected_category = $_GET['category_id'] ?? null;
-        foreach ($products as $product):
-          if ($selected_category && $product['Category_id'] != $selected_category) continue;
-      ?>
-        <div class="col-lg-3 col-md-6 mb-4">
-          <div class="card product-card h-100">
-            <div class="overflow-hidden" style="height: 180px;">
-              <img src="../uploads/<?= htmlspecialchars($product['Image']) ?>" class="card-img-top w-100 h-100" alt="<?= htmlspecialchars($product['Name']) ?>">
-            </div>
-            <div class="card-body d-flex flex-column">
-              <h6 class="card-title"><?= htmlspecialchars($product['Name']) ?></h6>
-              <p class="text-muted small mb-1"><?= htmlspecialchars($product['Description']) ?></p>
-              <p class="mb-1"><strong>Quantidade:</strong> <?= $product['Quantity'] ?></p>
-              <p class="mb-1 text-success fw-bold">R$ <?= number_format($product['Price'], 2, ',', '.') ?></p>
-              <p class="small text-secondary mb-2">Criado em: <?= date('d/m/Y', strtotime($product['Created_at'])) ?></p>
-              <span class="badge bg-primary mb-3">
-                <?= htmlspecialchars($categories[array_search($product['Category_id'], array_column($categories, 'ID'))]['Name'] ?? 'Desconhecida') ?>
-              </span>
+      <div class="card-body">
+        <div class="row">
+          <?php
+            $selected_category = $_GET['category_id'] ?? null;
+            foreach ($products as $product):
+              if ($selected_category && $product['Category_id'] != $selected_category) continue;
+          ?>
+            <div class="col-lg-3 col-md-6 mb-4">
+              <div class="card product-card h-100">
+                <div class="overflow-hidden" style="height: 180px;">
+                  <img src="../uploads/<?= htmlspecialchars($product['Image']) ?>" class="card-img-top w-100 h-100" alt="<?= htmlspecialchars($product['Name']) ?>">
+                </div>
+                <div class="card-body d-flex flex-column">
+                  <h6 class="card-title"><?= htmlspecialchars($product['Name']) ?></h6>
+                  <p class="text-muted small mb-1"><?= htmlspecialchars($product['Description']) ?></p>
+                  <p class="mb-1"><strong>Quantidade:</strong> <?= $product['Quantity'] ?></p>
+                  <p class="mb-1 text-success fw-bold">R$ <?= number_format($product['Price'], 2, ',', '.') ?></p>
+                  <p class="small text-secondary mb-2">Criado em: <?= date('d/m/Y', strtotime($product['Created_at'])) ?></p>
+                  <span class="badge bg-primary mb-3">
+                    <?= htmlspecialchars($categories[array_search($product['Category_id'], array_column($categories, 'ID'))]['Name'] ?? 'Desconhecida') ?>
+                  </span>
 
-              <div class="mt-auto">
-                <!-- Editar quantidade -->
-                <form action="./admin/edit_product.php" method="post" class="d-flex mb-2">
-                  <input type="hidden" name="action" value="edit_quantity">
-                  <input type="hidden" name="product_id" value="<?= $product['ID'] ?>">
-                  <input type="number" name="new_quantity" class="form-control form-control-sm me-2" placeholder="Qtd" min="0" required>
-                  <button type="submit" class="btn btn-sm btn-warning w-100">
-                    <i class="bi bi-pencil"></i> Qtd
-                  </button>
-                </form>
+                  <div class="mt-auto">
+                    <!-- Editar quantidade -->
+                    <form action="./admin/edit_product.php" method="post" class="d-flex mb-2">
+                      <input type="hidden" name="action" value="edit_quantity">
+                      <input type="hidden" name="product_id" value="<?= $product['ID'] ?>">
+                      <input type="number" name="new_quantity" class="form-control form-control-sm me-2" placeholder="Qtd" min="0" required>
+                      <button type="submit" class="btn btn-sm btn-warning w-100">
+                        <i class="bi bi-pencil"></i> Qtd
+                      </button>
+                    </form>
 
-                <!-- Editar preço -->
-                <form action="./admin/edit_product.php" method="post" class="d-flex mb-2">
-                  <input type="hidden" name="action" value="edit_price">
-                  <input type="hidden" name="product_id" value="<?= $product['ID'] ?>">
-                  <input type="number" step="0.01" name="new_price" class="form-control form-control-sm me-2" placeholder="Preço" min="0" required>
-                  <button type="submit" class="btn btn-sm btn-info text-white w-100">
-                    <i class="bi bi-currency-dollar"></i> Preço
-                  </button>
-                </form>
+                    <!-- Editar preço -->
+                    <form action="./admin/edit_product.php" method="post" class="d-flex mb-2">
+                      <input type="hidden" name="action" value="edit_price">
+                      <input type="hidden" name="product_id" value="<?= $product['ID'] ?>">
+                      <input type="number" step="0.01" name="new_price" class="form-control form-control-sm me-2" placeholder="Preço" min="0" required>
+                      <button type="submit" class="btn btn-sm btn-info text-white w-100">
+                        <i class="bi bi-currency-dollar"></i> Preço
+                      </button>
+                    </form>
 
-                <!-- Deletar produto -->
-                <form action="./admin/edit_product.php" method="post">
-                  <input type="hidden" name="action" value="delete">
-                  <input type="hidden" name="product_id" value="<?= $product['ID'] ?>">
-                  <button type="submit" class="btn btn-sm btn-danger w-100">
-                    <i class="bi bi-trash"></i> Remover
-                  </button>
-                </form>
+                    <!-- Deletar produto -->
+                    <form action="./admin/edit_product.php" method="post">
+                      <input type="hidden" name="action" value="delete">
+                      <input type="hidden" name="product_id" value="<?= $product['ID'] ?>">
+                      <button type="submit" class="btn btn-sm btn-danger w-100">
+                        <i class="bi bi-trash"></i> Remover
+                      </button>
+                    </form>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          <?php endforeach; ?>
         </div>
-      <?php endforeach; ?>
+      </div>
     </div>
-  </div>
-</div>
 
+    <script>
+      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      const sidebar = document.getElementById('sidebar');
 
-
-    <a href="../auth/logout.php">Sair</a>
+      mobileMenuBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('show');
+      });
+    </script>
 </body>
 </html>

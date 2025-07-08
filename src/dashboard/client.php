@@ -130,13 +130,20 @@ if (isset($_SESSION['cart_id'])) {
     
     @media (max-width: 992px) {
       .sidebar {
-        width: 0;
-        overflow: hidden;
-        transition: all 0.3s;
-      }
-      .sidebar.show {
+        background: linear-gradient(135deg, var(--dark-color) 0%, #212529 100%);
+        color: white;
+        min-height: 100vh;
         width: 280px;
+        position: fixed;
+        left: -280px; /* Esconde inicialmente */
+        transition: left 0.3s;
+        z-index: 1000;
       }
+
+      .sidebar.show {
+        left: 0; /* Mostra quando tiver a classe .show */
+      }
+
       .main-content {
         margin-left: 0;
       }
@@ -254,7 +261,7 @@ if (isset($_SESSION['cart_id'])) {
 </head>
 <body>
   <!-- Sidebar -->
-  <div class="sidebar d-none d-lg-block">
+  <div class="sidebar" id="sidebar">
     <div class="sidebar-header text-center">
       <h4>🛒 Portal de Produtos</h4>
     </div>
@@ -271,12 +278,7 @@ if (isset($_SESSION['cart_id'])) {
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="../wishlist.php">
-          <i class="bi bi-heart"></i> Favoritos
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="../settings.php">
+        <a class="nav-link" href="./client/settings.php">
           <i class="bi bi-gear"></i> Configurações
         </a>
       </li>
@@ -408,23 +410,12 @@ if (isset($_SESSION['cart_id'])) {
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Mobile menu toggle
-    document.getElementById('mobileMenuBtn').addEventListener('click', function() {
-      document.querySelector('.sidebar').classList.toggle('show');
-    });
-    
-    // Close sidebar when clicking outside
-    document.addEventListener('click', function(event) {
-      const sidebar = document.querySelector('.sidebar');
-      const mobileBtn = document.getElementById('mobileMenuBtn');
-      
-      if (sidebar.classList.contains('show') && 
-          !sidebar.contains(event.target) && 
-          event.target !== mobileBtn && 
-          !mobileBtn.contains(event.target)) {
-        sidebar.classList.remove('show');
-      }
-    });
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+
+        mobileMenuBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('show');
+        });
   </script>
 </body>
 </html>
