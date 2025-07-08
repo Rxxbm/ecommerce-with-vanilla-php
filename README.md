@@ -1,15 +1,3 @@
-# Sistema Ecommerce Em Vanilla PHP
-
-## Desenvolvido com HTML/CSS/BOOTSTRAP
-
-## Manual de execução:
-
-- Garanta que o docker e docker-compose esteja instalado em sua maquina
-  ```
-      Execute o comando docker compose up
-      Conteúdo estará disponível em http://localhost:8080
-  ```
-
 # 🛒 Portal de Produtos — Sistema de E-commerce
 
 Este é um sistema de e-commerce desenvolvido com PHP e MySQL, que permite o cadastro, exibição, compra e gerenciamento de produtos online. A aplicação possui dois módulos principais: **cliente** (público) e **administrador** (admin).
@@ -88,5 +76,15 @@ Este projeto tem como objetivo solucionar esse problema com um sistema web compl
 | JavaScript | Interatividade e AJAX           |
 | HTML/CSS   | Estrutura e layout              |
 | Strapi     | API de pagamento                |
+
+---
+
+## Manual de execução:
+
+- Garanta que o docker e docker-compose esteja instalado em sua maquina
+  ```
+      Execute o comando docker compose up
+      Conteúdo estará disponível em http://localhost:8080
+  ```
 
 ---
