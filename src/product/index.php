@@ -44,7 +44,7 @@ if (!$produto) {
   <div class="container mt-5">
     <div class="row">
       <div class="col-md-6">
-        <img src="<?= $produto['Image'] ?>" alt="<?= $produto['Name'] ?>" class="produto-img img-fluid rounded shadow">
+        <img src="../uploads/<?= htmlspecialchars($produto['Image']) ?>" alt="<?= htmlspecialchars($produto['Name']) ?>" class="produto-img img-fluid rounded shadow">
       </div>
       <div class="col-md-6">
         <h2><?= htmlspecialchars($produto['Name']) ?></h2>
@@ -52,7 +52,7 @@ if (!$produto) {
         <h4 class="text-primary">R$ <?= number_format($produto['Price'], 2, ',', '.') ?></h4>
         <p>Estoque: <?= $produto['Quantity'] ?></p>
         <a href="../index.php" class="btn btn-secondary mt-3">Voltar</a>
-        <a href="#" class="btn btn-success mt-3">Adicionar ao Carrinho</a>
+        <a href="../cart/index.php" class="btn btn-success mt-3">Adicionar ao Carrinho</a>
       </div>
     </div>
   </div>

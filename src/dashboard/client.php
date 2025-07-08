@@ -384,7 +384,7 @@ if (isset($_SESSION['cart_id'])) {
             <div class="col-lg-3 col-md-6 mb-4">
               <div class="card product-card h-100">
                 <div class="overflow-hidden" style="height: 180px;">
-                  <img src="<?= htmlspecialchars($product['Image']) ?>" class="card-img-top w-100 h-100" alt="<?= htmlspecialchars($product['Name']) ?>">
+                  <img src="../uploads/<?= htmlspecialchars($product['Image']) ?>" class="card-img-top w-100 h-100" alt="<?= htmlspecialchars($product['Name']) ?>">
                 </div>
                 <div class="card-body">
                   <h6 class="card-title"><?= htmlspecialchars($product['Name']) ?></h6>

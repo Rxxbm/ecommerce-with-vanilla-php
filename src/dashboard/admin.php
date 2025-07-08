@@ -54,6 +54,28 @@ if (isset($_SESSION['cart_id'])) {
         $cart_total = $cart_info['total'] ?? 0;
     }
 }
+
+// Buscar categorias com produtos
+$stmt_cat = $pdo->query("
+    SELECT ID, Name, Description, Created_at
+    FROM Category
+    ORDER BY Name
+");
+$categories = $stmt_cat->fetchAll(PDO::FETCH_ASSOC);
+
+// Buscar produtos agrupados por categoria
+$stmt_prod = $pdo->query("
+    SELECT p.ID, p.Name, p.Description, p.Price, p.Quantity, p.Image, p.Category_id, p.Created_at
+    FROM Product p
+    ORDER BY p.Category_id, p.Name
+");
+$products = $stmt_prod->fetchAll(PDO::FETCH_ASSOC);
+
+// Agrupar produtos por categoria
+$products_by_category = [];
+foreach ($products as $prod) {
+    $products_by_category[$prod['Category_id']][] = $prod;
+}
 ?>
 
 <!DOCTYPE html>
@@ -262,15 +284,15 @@ if (isset($_SESSION['cart_id'])) {
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="../orders.php">
+        <a class="nav-link" href="./admin/orders.php">
           <i class="bi bi-receipt"></i> Cadastrar Produtos
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="../wishlist.php">
-          <i class="bi bi-heart"></i> Cadastrar funcionários
-        </a>
-      </li>
+      <a class="nav-link" href="create_employee.php">
+        <i class="bi bi-person-plus"></i> Cadastrar Funcionários
+      </a>
+    </li>
       <li class="nav-item">
         <a class="nav-link" href="../settings.php">
           <i class="bi bi-gear"></i> Configurações
@@ -312,6 +334,83 @@ if (isset($_SESSION['cart_id'])) {
         </div>
       </div>
     </div>
+
+    <!-- Estoque em Cards com Filtro -->
+<div class="card mt-5">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0"><i class="bi bi-box-seam"></i> Estoque</h5>
+    <form method="GET" class="d-flex">
+      <select name="category_id" class="form-select form-select-sm me-2" onchange="this.form.submit()">
+        <option value="">Todas as Categorias</option>
+        <?php foreach ($categories as $cat): ?>
+          <option value="<?= $cat['ID'] ?>" <?= (isset($_GET['category_id']) && $_GET['category_id'] == $cat['ID']) ? 'selected' : '' ?>>
+            <?= htmlspecialchars($cat['Name']) ?>
+          </option>
+        <?php endforeach; ?>
+      </select>
+    </form>
+  </div>
+
+  <div class="card-body">
+    <div class="row">
+      <?php
+        $selected_category = $_GET['category_id'] ?? null;
+        foreach ($products as $product):
+          if ($selected_category && $product['Category_id'] != $selected_category) continue;
+      ?>
+        <div class="col-lg-3 col-md-6 mb-4">
+          <div class="card product-card h-100">
+            <div class="overflow-hidden" style="height: 180px;">
+              <img src="../uploads/<?= htmlspecialchars($product['Image']) ?>" class="card-img-top w-100 h-100" alt="<?= htmlspecialchars($product['Name']) ?>">
+            </div>
+            <div class="card-body d-flex flex-column">
+              <h6 class="card-title"><?= htmlspecialchars($product['Name']) ?></h6>
+              <p class="text-muted small mb-1"><?= htmlspecialchars($product['Description']) ?></p>
+              <p class="mb-1"><strong>Quantidade:</strong> <?= $product['Quantity'] ?></p>
+              <p class="mb-1 text-success fw-bold">R$ <?= number_format($product['Price'], 2, ',', '.') ?></p>
+              <p class="small text-secondary mb-2">Criado em: <?= date('d/m/Y', strtotime($product['Created_at'])) ?></p>
+              <span class="badge bg-primary mb-3">
+                <?= htmlspecialchars($categories[array_search($product['Category_id'], array_column($categories, 'ID'))]['Name'] ?? 'Desconhecida') ?>
+              </span>
+
+              <div class="mt-auto">
+                <!-- Editar quantidade -->
+                <form action="./admin/edit_product.php" method="post" class="d-flex mb-2">
+                  <input type="hidden" name="action" value="edit_quantity">
+                  <input type="hidden" name="product_id" value="<?= $product['ID'] ?>">
+                  <input type="number" name="new_quantity" class="form-control form-control-sm me-2" placeholder="Qtd" min="0" required>
+                  <button type="submit" class="btn btn-sm btn-warning w-100">
+                    <i class="bi bi-pencil"></i> Qtd
+                  </button>
+                </form>
+
+                <!-- Editar preço -->
+                <form action="./admin/edit_product.php" method="post" class="d-flex mb-2">
+                  <input type="hidden" name="action" value="edit_price">
+                  <input type="hidden" name="product_id" value="<?= $product['ID'] ?>">
+                  <input type="number" step="0.01" name="new_price" class="form-control form-control-sm me-2" placeholder="Preço" min="0" required>
+                  <button type="submit" class="btn btn-sm btn-info text-white w-100">
+                    <i class="bi bi-currency-dollar"></i> Preço
+                  </button>
+                </form>
+
+                <!-- Deletar produto -->
+                <form action="./admin/edit_product.php" method="post">
+                  <input type="hidden" name="action" value="delete">
+                  <input type="hidden" name="product_id" value="<?= $product['ID'] ?>">
+                  <button type="submit" class="btn btn-sm btn-danger w-100">
+                    <i class="bi bi-trash"></i> Remover
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</div>
+
 
 
     <a href="../auth/logout.php">Sair</a>
