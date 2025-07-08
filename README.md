@@ -87,5 +87,6 @@ Este projeto tem como objetivo solucionar esse problema com um sistema web compl
 | Bootstrap  | Estilização responsiva          |
 | JavaScript | Interatividade e AJAX           |
 | HTML/CSS   | Estrutura e layout              |
+| Strapi     | API de pagamento                |
 
 ---
