@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
         $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
         $image_name = uniqid() . '.' . $ext;
-        $image_path = '../uploads/' . $image_name;
+        $image_path = '../../uploads/' . $image_name;
 
         if (move_uploaded_file($_FILES['image']['tmp_name'], $image_path)) {
             $stmt = $pdo->prepare("
