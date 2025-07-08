@@ -57,6 +57,8 @@ Este projeto tem como objetivo solucionar esse problema com um sistema web compl
   - `Category`
   - `Cart`
   - `CartItem`
+  - `Order`
+  - `OrderItem`
 
 ---
 
