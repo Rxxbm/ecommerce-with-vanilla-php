@@ -14,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user'] = [
             'id' => $user['ID'],
             'name' => $user['Name'],
+            'email' => $user['Email'],
             'role' => $user['ROLE']
         ];
         if ($user['ROLE'] === 'admin') {

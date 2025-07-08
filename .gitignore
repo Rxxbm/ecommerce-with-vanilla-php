@@ -1,1 +1,7 @@
+.env
 /src/uploads/
+# PHP
+/src/vendor/
+/src/composer.lock
+.phpunit.result.cache
+

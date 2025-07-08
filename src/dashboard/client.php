@@ -266,7 +266,7 @@ if (isset($_SESSION['cart_id'])) {
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="../orders.php">
+        <a class="nav-link" href="../orders/index.php">
           <i class="bi bi-receipt"></i> Meus Pedidos
         </a>
       </li>
@@ -322,7 +322,7 @@ if (isset($_SESSION['cart_id'])) {
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="bi bi-receipt"></i> Pedidos Recentes</h5>
-        <a href="../orders.php" class="btn btn-sm btn-outline-primary">Ver Todos</a>
+        <a href="../orders/index.php" class="btn btn-sm btn-outline-primary">Ver Todos</a>
       </div>
       <div class="card-body">
         <?php if (count($orders) > 0): ?>
