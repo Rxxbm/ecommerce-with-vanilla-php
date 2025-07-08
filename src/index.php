@@ -76,12 +76,25 @@ if ($is_logged_in && isset($_SESSION['cart_id'])) {
 }
 
 // Busca produtos
-$stmt = $pdo->query("
-    SELECT p.*, c.Name as category_name 
-    FROM Product p
-    JOIN Category c ON p.Category_id = c.ID
-    ORDER BY p.Created_at DESC
-");
+$search_term = $_GET['search'] ?? '';
+
+if (!empty($search_term)) {
+    $stmt = $pdo->prepare("
+        SELECT p.*, c.Name as category_name 
+        FROM Product p
+        JOIN Category c ON p.Category_id = c.ID
+        WHERE p.Name LIKE :search OR p.Description LIKE :search
+        ORDER BY p.Created_at DESC
+    ");
+    $stmt->execute(['search' => '%' . $search_term . '%']);
+} else {
+    $stmt = $pdo->query("
+        SELECT p.*, c.Name as category_name 
+        FROM Product p
+        JOIN Category c ON p.Category_id = c.ID
+        ORDER BY p.Created_at DESC
+    ");
+}
 $products = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>
@@ -261,9 +274,9 @@ $products = $stmt->fetchAll();
     <div class="container text-center">
       <h1 class="display-4 fw-bold mb-3">Bem-vindo ao Portal de Produtos</h1>
       <p class="lead mb-4">Encontre os melhores produtos com os melhores preços</p>
-      <form class="d-flex justify-content-center">
+      <form class="d-flex justify-content-center" method="GET" action="">
         <div class="input-group mb-3" style="max-width: 500px;">
-          <input type="text" class="form-control" placeholder="O que você está procurando?">
+          <input type="text" class="form-control" name="search" placeholder="O que você está procurando?" value="<?= isset($_GET['search']) ? htmlspecialchars($_GET['search']) : '' ?>">
           <button class="btn btn-light" type="submit">
             <i class="bi bi-search"></i> Buscar
           </button>

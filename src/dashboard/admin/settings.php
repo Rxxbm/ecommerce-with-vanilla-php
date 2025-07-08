@@ -2,50 +2,52 @@
 session_start();
 require '../../config/connection.php';
 
-// Verifica se o usuário está logado e é admin
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
     header('Location: ../auth/login.php');
     exit;
 }
 
-$erro = '';
-$sucesso = '';
+$perfil_sucesso = '';
+$perfil_erro = '';
 
-// Envia produto para o banco
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = $_POST['name'] ?? '';
-    $description = $_POST['description'] ?? '';
-    $price = floatval($_POST['price']) ?? 0;
-    $quantity = intval($_POST['quantity']) ?? 0;
-    $category_id = intval($_POST['category_id']) ?? null;
+// Atualizar nome
+if (isset($_POST['update_name'])) {
+    $novo_nome = trim($_POST['name']);
+    $id = $_SESSION['user']['id'];
 
-    // Upload da imagem
-    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-        $image_name = uniqid() . '.' . $ext;
-        $image_path = '../../uploads/' . $image_name;
-
-        if (move_uploaded_file($_FILES['image']['tmp_name'], $image_path)) {
-            $stmt = $pdo->prepare("
-                INSERT INTO Product (Name, Description, Price, Quantity, Image, Category_id)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ");
-            if ($stmt->execute([$name, $description, $price, $quantity, $image_name, $category_id])) {
-                $sucesso = "Produto cadastrado com sucesso!";
-            } else {
-                $erro = "Erro ao cadastrar o produto.";
-            }
-        } else {
-            $erro = "Erro ao salvar imagem.";
-        }
+    $stmt = $pdo->prepare("UPDATE Costumer SET Name = ? WHERE ID = ?");
+    if ($stmt->execute([$novo_nome, $id])) {
+        $_SESSION['user']['name'] = $novo_nome;
+        $perfil_sucesso = "Nome atualizado com sucesso!";
     } else {
-        $erro = "Imagem não enviada corretamente.";
+        $perfil_erro = "Erro ao atualizar nome.";
     }
 }
 
-// Buscar categorias
-$stmt_categories = $pdo->query("SELECT ID, Name FROM Category ORDER BY Name");
-$categories = $stmt_categories->fetchAll();
+// Atualizar senha
+if (isset($_POST['update_password'])) {
+    $nova_senha = password_hash($_POST['password'], PASSWORD_BCRYPT);
+    $id = $_SESSION['user']['id'];
+
+    $stmt = $pdo->prepare("UPDATE Costumer SET Password = ? WHERE ID = ?");
+    if ($stmt->execute([$nova_senha, $id])) {
+        $perfil_sucesso = "Senha atualizada com sucesso!";
+    } else {
+        $perfil_erro = "Erro ao atualizar senha.";
+    }
+}
+
+// Obter dados do usuário atualizados
+$id = $_SESSION['user']['id'];
+
+$stmt = $pdo->prepare("SELECT Name, Email, updated_at FROM Costumer WHERE ID = ?");
+$stmt->execute([$id]);
+$admin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Atualiza os dados na sessão se quiser manter consistência
+if ($admin) {
+    $_SESSION['user']['name'] = $admin['Name'];
+}
 ?>
 
 
@@ -119,13 +121,20 @@ $categories = $stmt_categories->fetchAll();
     
     @media (max-width: 992px) {
       .sidebar {
-        width: 0;
-        overflow: hidden;
-        transition: all 0.3s;
-      }
-      .sidebar.show {
+        background: linear-gradient(135deg, var(--dark-color) 0%, #212529 100%);
+        color: white;
+        min-height: 100vh;
         width: 280px;
+        position: fixed;
+        left: -280px; /* Esconde inicialmente */
+        transition: left 0.3s;
+        z-index: 1000;
       }
+
+      .sidebar.show {
+        left: 0; /* Mostra quando tiver a classe .show */
+      }
+
       .main-content {
         margin-left: 0;
       }
@@ -243,7 +252,7 @@ $categories = $stmt_categories->fetchAll();
 </head>
 <body>
       <!-- Sidebar -->
-<div class="sidebar d-none d-lg-block">
+<div class="sidebar" id="sidebar">
   <div class="sidebar-header text-center">
     <h4>🛒 Portal de Produtos</h4>
   </div>
@@ -252,13 +261,16 @@ $categories = $stmt_categories->fetchAll();
       <a class="nav-link" href="../admin.php"><i class="bi bi-speedometer2"></i> Dashboard</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link active" href="#"><i class="bi bi-box-seam"></i> Cadastrar Produtos</a>
+      <a class="nav-link" href="product.php"><i class="bi bi-box-seam"></i> Cadastrar Produtos</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="create_employee.php"><i class="bi bi-person-plus"></i> Cadastrar Funcionários</a>
+        <a class="nav-link" href="category.php"><i class="bi bi-tags"></i> Criar Categoria</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="settings.php"><i class="bi bi-gear"></i> Configurações</a>
+      <a class="nav-link" href="costumer.php"><i class="bi bi-person-plus"></i> Cadastrar Funcionários</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="#"><i class="bi bi-gear"></i> Configurações</a>
     </li>
     <li class="nav-item mt-3">
       <a class="nav-link text-danger" href="../../auth/logout.php"><i class="bi bi-box-arrow-right"></i> Sair</a>
@@ -266,56 +278,47 @@ $categories = $stmt_categories->fetchAll();
   </ul>
 </div>
 
-<!-- Main Content -->
+<!-- Seção de Perfil -->
 <div class="main-content">
   <div class="container mt-5">
-    <h2 class="mb-4">Cadastrar Novo Produto</h2>
+  <h2 class="mb-4">Perfil do Administrador</h2>
 
-    <?php if ($erro): ?>
-      <div class="alert alert-danger"><?= $erro ?></div>
-    <?php elseif ($sucesso): ?>
-      <div class="alert alert-success"><?= $sucesso ?></div>
-    <?php endif; ?>
+  <?php if ($perfil_sucesso): ?>
+    <div class="alert alert-success"><?= $perfil_sucesso ?></div>
+  <?php elseif ($perfil_erro): ?>
+    <div class="alert alert-danger"><?= $perfil_erro ?></div>
+  <?php endif; ?>
 
-    <form method="POST" enctype="multipart/form-data">
-      <div class="mb-3">
-        <label for="name" class="form-label">Nome do Produto</label>
-        <input type="text" class="form-control" id="name" name="name" required>
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body d-flex align-items-center">
+      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Perfil" width="100" height="100" class="me-4 rounded-circle border">
+      <div>
+        <h5 class="card-title mb-1"><?= htmlspecialchars($_SESSION['user']['name']) ?></h5>
+        <p class="mb-0 text-muted"><?= htmlspecialchars($admin['Email']) ?></p>
+        <p class="mb-0 text-muted">Última atualização: <?= htmlspecialchars($admin['updated_at']) ?></p>
       </div>
-
-      <div class="mb-3">
-        <label for="description" class="form-label">Descrição</label>
-        <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
-      </div>
-
-      <div class="row mb-3">
-        <div class="col-md-4">
-          <label for="price" class="form-label">Preço (R$)</label>
-          <input type="number" step="0.01" class="form-control" id="price" name="price" required min="0" required>
-        </div>
-        <div class="col-md-4">
-          <label for="quantity" class="form-label">Quantidade</label>
-          <input type="number" class="form-control" id="quantity" name="quantity" required min="0" required>
-        </div>
-        <div class="col-md-4">
-          <label for="category_id" class="form-label">Categoria</label>
-          <select class="form-select" id="category_id" name="category_id" required>
-            <option value="">Selecione...</option>
-            <?php foreach ($categories as $cat): ?>
-              <option value="<?= $cat['ID'] ?>"><?= htmlspecialchars($cat['Name']) ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-      </div>
-
-      <div class="mb-3">
-        <label for="image" class="form-label">Imagem do Produto</label>
-        <input class="form-control" type="file" id="image" name="image" accept="image/*" required>
-      </div>
-
-      <button type="submit" class="btn btn-primary">Cadastrar Produto</button>
-    </form>
+    </div>
   </div>
+
+  <!-- Formulário para alterar nome -->
+  <form method="POST" class="mb-4">
+    <div class="mb-3">
+      <label for="name" class="form-label">Alterar Nome</label>
+      <input type="text" class="form-control" id="name" name="name" value="<?= htmlspecialchars($_SESSION['user']['name']) ?>" required>
+    </div>
+    <button type="submit" name="update_name" class="btn btn-primary">Salvar Nome</button>
+  </form>
+
+  <!-- Formulário para alterar senha -->
+  <form method="POST">
+    <div class="mb-3">
+      <label for="password" class="form-label">Nova Senha</label>
+      <input type="password" class="form-control" id="password" name="password" required placeholder="Digite a nova senha">
+    </div>
+    <button type="submit" name="update_password" class="btn btn-warning">Alterar Senha</button>
+  </form>
+</div>
+
 </div>
 
 
@@ -324,6 +327,13 @@ $categories = $stmt_categories->fetchAll();
     <i class="bi bi-list" style="font-size: 1.5rem;"></i>
   </button>
 
-    <a href="../../auth/logout.php">Sair</a>
+    <script>
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+
+        mobileMenuBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('show');
+        });
+    </script>
 </body>
 </html>

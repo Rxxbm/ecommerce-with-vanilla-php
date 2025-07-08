@@ -39,23 +39,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_item'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_quantity'])) {
     $item_id = $_POST['item_id'];
     $quantity = $_POST['quantity'];
-    
-    if ($quantity > 0) {
-        $stmt = $pdo->prepare("UPDATE CartItem SET QuantityItem = ? WHERE ID = ? AND Cart_ID = ?");
-        $stmt->execute([$quantity, $item_id, $_SESSION['cart_id']]);
-    } else {
-        $stmt = $pdo->prepare("DELETE FROM CartItem WHERE ID = ? AND Cart_ID = ?");
-        $stmt->execute([$item_id, $_SESSION['cart_id']]);
+
+    // Buscar ID do produto vinculado ao item do carrinho
+    $stmt = $pdo->prepare("SELECT Product_ID FROM CartItem WHERE ID = ? AND Cart_ID = ?");
+    $stmt->execute([$item_id, $_SESSION['cart_id']]);
+    $product = $stmt->fetch();
+
+    if ($product) {
+        // Buscar a quantidade em estoque
+        $stmt = $pdo->prepare("SELECT Quantity FROM Product WHERE ID = ?");
+        $stmt->execute([$product['Product_ID']]);
+        $product_data = $stmt->fetch();
+
+        $estoque_disponivel = $product_data['Quantity'];
+
+        // Se a quantidade solicitada for maior que o estoque, limita
+        if ($quantity > $estoque_disponivel) {
+            $_SESSION['cart_message'] = "Quantidade excede o estoque disponível!";
+        } else {
+            if ($quantity > 0) {
+                $stmt = $pdo->prepare("UPDATE CartItem SET QuantityItem = ? WHERE ID = ? AND Cart_ID = ?");
+                $stmt->execute([$quantity, $item_id, $_SESSION['cart_id']]);
+                $_SESSION['cart_message'] = "Carrinho atualizado!";
+            } else {
+                $stmt = $pdo->prepare("DELETE FROM CartItem WHERE ID = ? AND Cart_ID = ?");
+                $stmt->execute([$item_id, $_SESSION['cart_id']]);
+                $_SESSION['cart_message'] = "Item removido do carrinho!";
+            }
+
+            // Atualizar totais do carrinho
+            $stmt = $pdo->prepare("UPDATE Cart SET Itens = (SELECT SUM(QuantityItem) FROM CartItem WHERE Cart_ID = ?) WHERE ID = ?");
+            $stmt->execute([$_SESSION['cart_id'], $_SESSION['cart_id']]);
+
+            $stmt = $pdo->prepare("UPDATE Cart SET Total = (SELECT SUM(ci.QuantityItem * p.Price) FROM CartItem ci JOIN Product p ON ci.Product_ID = p.ID WHERE ci.Cart_ID = ?) WHERE ID = ?");
+            $stmt->execute([$_SESSION['cart_id'], $_SESSION['cart_id']]);
+        }
     }
-    
-    // Atualiza totais do carrinho
-    $stmt = $pdo->prepare("UPDATE Cart SET Itens = (SELECT SUM(QuantityItem) FROM CartItem WHERE Cart_ID = ?) WHERE ID = ?");
-    $stmt->execute([$_SESSION['cart_id'], $_SESSION['cart_id']]);
-    
-    $stmt = $pdo->prepare("UPDATE Cart SET Total = (SELECT SUM(ci.QuantityItem * p.Price) FROM CartItem ci JOIN Product p ON ci.Product_ID = p.ID WHERE ci.Cart_ID = ?) WHERE ID = ?");
-    $stmt->execute([$_SESSION['cart_id'], $_SESSION['cart_id']]);
-    
-    $_SESSION['cart_message'] = "Carrinho atualizado!";
     header('Location: ./index.php');
     exit;
 }
@@ -106,7 +125,7 @@ $cart = $stmt->fetch();
     <!-- Navbar (igual à home) -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="./index.php">🛒 Portal de Produtos</a>
+            <a class="navbar-brand" href="../index.php">🛒 Portal de Produtos</a>
             <div class="d-flex align-items-center">
                 <a href="../index.php" class="btn btn-outline-light me-2">
                     <i class="bi bi-house"></i> Home

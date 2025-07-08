@@ -46,6 +46,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             unlink("../uploads/$img");
         }
 
+        $stmt = $pdo->prepare("DELETE FROM CartItem WHERE Product_ID = ?");
+        $stmt->execute([$product_id]);
+
+
         $stmt = $pdo->prepare("DELETE FROM Product WHERE ID = ?");
         $stmt->execute([$product_id]);
     }
