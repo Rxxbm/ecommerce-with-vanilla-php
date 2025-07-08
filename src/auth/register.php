@@ -7,15 +7,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
     $role = $_POST['role'] ?? 'user';
 
-    $stmt = $pdo->prepare("INSERT INTO Costumer (Name, Email, Password, ROLE) VALUES (?, ?, ?, ?)");
-    if ($stmt->execute([$name, $email, $password, $role])) {
-        header('Location: login.php');
-        exit;
+    // Verificar se o email já existe
+    $check = $pdo->prepare("SELECT COUNT(*) FROM Costumer WHERE Email = ?");
+    $check->execute([$email]);
+    $exists = $check->fetchColumn();
+
+    if ($exists) {
+        $erro = "Já existe uma conta com esse email.";
     } else {
-        $erro = "Erro ao cadastrar. Tente novamente.";
+        $stmt = $pdo->prepare("INSERT INTO Costumer (Name, Email, Password, ROLE) VALUES (?, ?, ?, ?)");
+        if ($stmt->execute([$name, $email, $password, $role])) {
+            header('Location: login.php');
+            exit;
+        } else {
+            $erro = "Erro ao cadastrar. Tente novamente.";
+        }
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="pt-br">

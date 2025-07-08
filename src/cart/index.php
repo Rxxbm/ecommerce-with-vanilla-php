@@ -153,7 +153,7 @@ $cart = $stmt->fetch();
                                             <tr>
                                                 <td>
                                                     <div class="d-flex align-items-center">
-                                                        <img src="<?= $item['Image'] ?>" alt="<?= $item['Name'] ?>" class="cart-item-img me-3">
+                                                        <img src="../uploads/<?= htmlspecialchars($item['Image']) ?>" alt="<?= htmlspecialchars($item['Name']) ?>" class="cart-item-img me-3">
                                                         <div>
                                                             <h6 class="mb-0"><?= htmlspecialchars($item['Name']) ?></h6>
                                                             <small class="text-muted">ID: <?= $item['product_id'] ?></small>

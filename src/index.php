@@ -294,7 +294,7 @@ $products = $stmt->fetchAll();
         <?php foreach ($products as $produto): ?>
             <div class="col product-item" data-price="<?= $produto['Price'] ?>" data-date="<?= strtotime($produto['Created_at']) ?>">
                 <div class="card product-card">
-                    <img src="<?= htmlspecialchars($produto['Image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($produto['Name']) ?>">
+                    <img src="./uploads/<?= htmlspecialchars($produto['Image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($produto['Name']) ?>">
                     <div class="card-body">
                         <span class="badge bg-secondary mb-2"><?= htmlspecialchars($produto['category_name']) ?></span>
                         <h5 class="card-title"><?= htmlspecialchars($produto['Name']) ?></h5>
